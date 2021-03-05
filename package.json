@@ -1,23 +1,23 @@
 {
-  "name": "gatsby-transformer-gitinfo",
-  "description": "Gatsby transformer plugin which add git info to File nodes created by gatsby-source-filesystem",
-  "version": "1.1.0",
-  "author": "Kevin Raynel",
+  "name": "@colliercz/gatsby-transformer-gitinfo",
+  "description": "Gatsby transformer plugin that adds git info to File nodes created by gatsby-source-filesystem",
+  "version": "1.0.0",
+  "author": "Aaron Collier",
   "bugs": {
-    "url": "https://github.com/kraynel/gatsby-transformer-gitinfo/issues"
+    "url": "https://github.com/CollierCZ/gatsby-transformer-gitinfo/issues"
   },
   "dependencies": {
-    "@babel/runtime": "7.7.2",
-    "simple-git": "1.126.0"
+    "@babel/runtime": "7.12.13",
+    "simple-git": "2.34.2"
   },
   "devDependencies": {
-    "@babel/cli": "7.7.0",
-    "@babel/core": "7.7.2",
+    "@babel/cli": "7.12.13",
+    "@babel/core": "7.12.13",
     "babel-preset-gatsby-package": "0.2.9",
-    "cross-env": "5.2.1",
-    "jest": "24.9.0"
+    "cross-env": "7.0.3",
+    "jest": "26.6.3"
   },
-  "homepage": "https://github.com/kraynel/gatsby-transformer-gitinfo",
+  "homepage": "https://github.com/CollierCZ/gatsby-transformer-gitinfo",
   "keywords": [
     "gatsby",
     "gatsby-plugin",
@@ -25,11 +25,11 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "gatsby": "^2.0.15"
+    "gatsby": "^3.0.0"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/kraynel/gatsby-transformer-gitinfo.git"
+    "url": "https://github.com/CollierCZ/gatsby-transformer-gitinfo.git"
   },
   "scripts": {
     "build": "babel src --out-dir . --ignore **/__tests__",
