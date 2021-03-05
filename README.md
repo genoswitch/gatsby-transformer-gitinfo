@@ -1,10 +1,10 @@
 # gatsby-transformer-gitinfo
 
-Add some git information on `File` fields from latest commit: date, author and email.
+Add some git information on `File` fields from latest commit: date, author, and email.
 
 ## Install
 
-`npm install --save gatsby-transformer-gitinfo`
+`yarn add @colliercz/gatsby-transformer-gitinfo`
 
 **Note:** You also need to have `gatsby-source-filesystem` installed and configured so it
 points to your files.
@@ -22,14 +22,14 @@ module.exports = {
         path: `./src/data/`,
       },
     },
-    `gatsby-transformer-gitinfo`,
+    `@colliercz/gatsby-transformer-gitinfo`,
   ],
 }
 ```
 
 Where the _source folder_ `./src/data/` is a git versionned directory.
 
-The plugin will add several fields to `File` nodes: `gitLogLatestAuthorName`, `gitLogLatestAuthorEmail` and `gitLogLatestDate`. These fields are related to the latest commit touching that file.
+The plugin will add several fields to `File` nodes: `gitLogLatestAuthorName`, `gitLogLatestAuthorEmail`, and `gitLogLatestDate`. These fields are related to the latest commit touching that file.
 
 If the file is not versionned, these fields will be `null`.
 
@@ -127,7 +127,7 @@ module.exports = {
 
 **`dir`** [string][optional]
 
-The root of the git repository. Will use current directory if not provided.
+The root of the git repository. Will use the current directory if not provided.
 
 ## Example
 
