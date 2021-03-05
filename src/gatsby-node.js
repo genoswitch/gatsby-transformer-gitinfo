@@ -48,15 +48,13 @@ async function onCreateNode({ node, actions }, pluginOptions) {
     return;
   }
 
-  const gitRepo = git(pluginOptions.dir || fs.realpathSync.native(path.dirname(node.absolutePath), (error, resolvedPath) => {
+  const gitRepo = git(pluginOptions.dir || path.dirname(fs.realpathSync.native(node.absolutePath, (error, resolvedPath) => {
     if (error) {
       console.log(error)
       return
     }
-    else {
-      return resolvedPath
-    }
-  }));
+    return resolvedPath
+  })));
   const log = await getLogWithRetry(gitRepo, node);
 
   if (!log.latest) {

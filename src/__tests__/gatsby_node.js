@@ -114,6 +114,7 @@ describe(`Processing File nodes matching filter regex`, () => {
     });
 
     fs.symlinkSync(dummyOtherRepoPath, `${dummyRepoPath}/symlink`);
+    fs.symlinkSync(`${dummyOtherRepoPath}/CONTENT.md`, `${dummyRepoPath}/CONTENT_LINKED.md`);
   });
 
   it("should add log and remote git info to commited File node", async () => {
@@ -141,8 +142,31 @@ describe(`Processing File nodes matching filter regex`, () => {
     });
   });
 
-  it("should add log and remote git info to file from symlink", async () => {
+  it("should add log and remote git info to file from symlink folder", async () => {
     node.absolutePath = `${dummyRepoPath}/symlink/CONTENT.md`;
+    await onCreateNode(createNodeSpec, {
+      include: /md/,
+    });
+    expect(createNodeField).toHaveBeenCalledTimes(3);
+    expect(createNodeField).toHaveBeenCalledWith({
+      node,
+      name: `gitLogLatestAuthorName`,
+      value: `Some One Else`,
+    });
+    expect(createNodeField).toHaveBeenCalledWith({
+      node,
+      name: `gitLogLatestAuthorEmail`,
+      value: `someone@else.com`,
+    });
+    expect(createNodeField).toHaveBeenCalledWith({
+      node,
+      name: `gitLogLatestDate`,
+      value: `2018-08-20 21:19:19 +0000`,
+    });
+  });
+
+  it("should add log and remote git info to file from symlink file", async () => {
+    node.absolutePath = `${dummyRepoPath}/CONTENT_LINKED.md`;
     await onCreateNode(createNodeSpec, {
       include: /md/,
     });
