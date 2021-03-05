@@ -1,20 +1,22 @@
 const git = require(`simple-git/promise`);
-const path = require('path');
-const fs = require('fs')
+const path = require("path");
+const fs = require("fs");
 
 async function getLogWithRetry(gitRepo, node, retry = 2) {
   // Need retry, see https://github.com/steveukx/git-js/issues/302
   // Check again after v2 is released?
 
-  const filePath = fs.realpathSync.native(node.absolutePath, (error, resolvedPath) => {
-    if (error) {
-      console.log(error)
-      return
+  const filePath = fs.realpathSync.native(
+    node.absolutePath,
+    (error, resolvedPath) => {
+      if (error) {
+        console.log(error);
+        return;
+      } else {
+        return resolvedPath;
+      }
     }
-    else {
-      return resolvedPath
-    }
-  });
+  );
 
   const logOptions = {
     file: filePath,
@@ -22,8 +24,8 @@ async function getLogWithRetry(gitRepo, node, retry = 2) {
     format: {
       date: `%ai`,
       authorName: `%an`,
-      authorEmail: "%ae"
-    }
+      authorEmail: "%ae",
+    },
   };
   const log = await gitRepo.log(logOptions);
   if (!log.latest && retry > 0) {
@@ -48,13 +50,18 @@ async function onCreateNode({ node, actions }, pluginOptions) {
     return;
   }
 
-  const gitRepo = git(pluginOptions.dir || path.dirname(fs.realpathSync.native(node.absolutePath, (error, resolvedPath) => {
-    if (error) {
-      console.log(error)
-      return
-    }
-    return resolvedPath
-  })));
+  const gitRepo = git(
+    pluginOptions.dir ||
+      path.dirname(
+        fs.realpathSync.native(node.absolutePath, (error, resolvedPath) => {
+          if (error) {
+            console.log(error);
+            return;
+          }
+          return resolvedPath;
+        })
+      )
+  );
   const log = await getLogWithRetry(gitRepo, node);
 
   if (!log.latest) {
@@ -64,17 +71,17 @@ async function onCreateNode({ node, actions }, pluginOptions) {
   createNodeField({
     node,
     name: `gitLogLatestAuthorName`,
-    value: log.latest.authorName
+    value: log.latest.authorName,
   });
   createNodeField({
     node,
     name: `gitLogLatestAuthorEmail`,
-    value: log.latest.authorEmail
+    value: log.latest.authorEmail,
   });
   createNodeField({
     node,
     name: `gitLogLatestDate`,
-    value: log.latest.date
+    value: log.latest.date,
   });
 }
 
