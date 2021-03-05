@@ -11,7 +11,7 @@ let actions;
 let node;
 let createNodeSpec;
 let dummyRepoPath;
-let dummyRepoSubmodulePath;
+let dummyOtherRepoPath;
 
 beforeEach(() => {
   createNodeField = jest.fn();
@@ -24,13 +24,13 @@ beforeEach(() => {
     parent: null,
     children: [],
     internal: {
-      type: "File"
-    }
+      type: "File",
+    },
   };
 
   createNodeSpec = {
     node,
-    actions
+    actions,
   };
 });
 
@@ -43,7 +43,7 @@ const initGitRepo = async (path, username, useremail, remote) => {
   await gitRepo.addRemote("origin", remote);
 
   return gitRepo;
-}
+};
 
 describe(`Processing nodes not matching initial filtering`, () => {
   it(`should not add any field when internal type is not 'File'`, async () => {
@@ -54,14 +54,14 @@ describe(`Processing nodes not matching initial filtering`, () => {
 
   it(`should not add any field when full path is not in include`, async () => {
     await onCreateNode(createNodeSpec, {
-      include: /notmatching/
+      include: /notmatching/,
     });
     expect(createNodeField).not.toHaveBeenCalled();
   });
 
   it(`should not add any field when full path is in ignore`, async () => {
     await onCreateNode(createNodeSpec, {
-      ignore: /some\/path\/file/
+      ignore: /some\/path\/file/,
     });
     expect(createNodeField).not.toHaveBeenCalled();
   });
@@ -69,7 +69,7 @@ describe(`Processing nodes not matching initial filtering`, () => {
   it(`should not add any field when full path is in include and in ignore`, async () => {
     await onCreateNode(createNodeSpec, {
       include: /mdx/,
-      ignore: /some\/path\/file/
+      ignore: /some\/path\/file/,
     });
     expect(createNodeField).not.toHaveBeenCalled();
   });
@@ -85,41 +85,35 @@ describe(`Processing File nodes matching filter regex`, () => {
       dummyRepoPath,
       "Some One",
       "some@one.com",
-      "https://some.git.repo",
+      "https://some.git.repo"
     );
 
     fs.writeFileSync(`${dummyRepoPath}/README.md`, "Hello");
     await gitRepo.add("README.md");
-    await gitRepo.commit(
-      "Add README",
-      "README.md", {
-        "--date": '"Mon 20 Aug 2018 20:19:19 UTC"'
-      }
-    );
+    await gitRepo.commit("Add README", "README.md", {
+      "--date": '"Mon 20 Aug 2018 20:19:19 UTC"',
+    });
 
     fs.writeFileSync(`${dummyRepoPath}/unversionned`, "World");
 
-    dummyRepoSubmodulePath = fs.mkdtempSync(
-      path.join(os.tmpdir(), "gatsby-transform-gitinfo-submodule-")
+    dummyOtherRepoPath = fs.mkdtempSync(
+      path.join(os.tmpdir(), "gatsby-transform-gitinfo-otherrepo-")
     );
 
-    const gitRepoSubmodule = await initGitRepo(
-      dummyRepoSubmodulePath,
+    const gitOtherRepo = await initGitRepo(
+      dummyOtherRepoPath,
       "Some One Else",
       "someone@else.com",
-      "https://some.other.git.repo",
+      "https://some.other.git.repo"
     );
 
-    fs.writeFileSync(`${dummyRepoSubmodulePath}/CONTENT.md`, "Hello");
-    await gitRepoSubmodule.add("CONTENT.md");
-    await gitRepoSubmodule.commit(
-      "Add CONTENT",
-      "CONTENT.md", {
-        "--date": '"Mon 20 Aug 2018 20:19:19 UTC"'
-      }
-    );
+    fs.writeFileSync(`${dummyOtherRepoPath}/CONTENT.md`, "Hello");
+    await gitOtherRepo.add("CONTENT.md");
+    await gitOtherRepo.commit("Add CONTENT", "CONTENT.md", {
+      "--date": '"Mon 20 Aug 2018 21:19:19 UTC"',
+    });
 
-    await gitRepo.submoduleAdd(dummyRepoSubmodulePath, "submodule")
+    fs.symlinkSync(dummyOtherRepoPath, `${dummyRepoPath}/symlink`);
   });
 
   it("should add log and remote git info to commited File node", async () => {
@@ -127,48 +121,46 @@ describe(`Processing File nodes matching filter regex`, () => {
     node.dir = dummyRepoPath;
     await onCreateNode(createNodeSpec, {
       include: /md/,
-      dir: dummyRepoPath
+      dir: dummyRepoPath,
     });
     expect(createNodeField).toHaveBeenCalledTimes(3);
     expect(createNodeField).toHaveBeenCalledWith({
       node,
       name: `gitLogLatestAuthorName`,
-      value: `Some One`
+      value: `Some One`,
     });
     expect(createNodeField).toHaveBeenCalledWith({
       node,
       name: `gitLogLatestAuthorEmail`,
-      value: `some@one.com`
+      value: `some@one.com`,
     });
     expect(createNodeField).toHaveBeenCalledWith({
       node,
       name: `gitLogLatestDate`,
-      value: `2018-08-20 20:19:19 +0000`
+      value: `2018-08-20 20:19:19 +0000`,
     });
   });
 
-  it("should add log and remote git info to file in submodule", async () => {
-    node.absolutePath = `${dummyRepoPath}/submodule/CONTENT.md`;
-    node.dir = dummyRepoPath;
+  it("should add log and remote git info to file from symlink", async () => {
+    node.absolutePath = `${dummyRepoPath}/symlink/CONTENT.md`;
     await onCreateNode(createNodeSpec, {
       include: /md/,
-      dir: dummyRepoPath
     });
     expect(createNodeField).toHaveBeenCalledTimes(3);
     expect(createNodeField).toHaveBeenCalledWith({
       node,
       name: `gitLogLatestAuthorName`,
-      value: `Some One Else`
+      value: `Some One Else`,
     });
     expect(createNodeField).toHaveBeenCalledWith({
       node,
       name: `gitLogLatestAuthorEmail`,
-      value: `someone@else.com`
+      value: `someone@else.com`,
     });
     expect(createNodeField).toHaveBeenCalledWith({
       node,
       name: `gitLogLatestDate`,
-      value: `2018-08-20 20:19:19 +0000`
+      value: `2018-08-20 21:19:19 +0000`,
     });
   });
 
@@ -177,7 +169,7 @@ describe(`Processing File nodes matching filter regex`, () => {
     node.dir = dummyRepoPath;
     await onCreateNode(createNodeSpec, {
       include: /unversionned/,
-      dir: dummyRepoPath
+      dir: dummyRepoPath,
     });
     expect(createNodeField).not.toHaveBeenCalled();
   });
