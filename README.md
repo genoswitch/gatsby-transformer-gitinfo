@@ -2,16 +2,21 @@
 
 Add some git information on `File` fields from latest commit: date, author, and email.
 
+This fork was created to add information for files that are added via symlink,
+such as to combine files from other git repositories.
+The plugin will resolve the symlink to the original file
+and base the information on the git repository at the original location.
+
 ## Install
 
 `yarn add @colliercz/gatsby-transformer-gitinfo`
 
-**Note:** You also need to have `gatsby-source-filesystem` installed and configured so it
-points to your files.
+**Note:** You also need to have `gatsby-source-filesystem` installed
+and configured so it points to your files.
 
 ## How to use
 
-In your `gatsby-config.js`
+In your `gatsby-config.js`, add:
 
 ```javascript
 module.exports = {
@@ -29,7 +34,9 @@ module.exports = {
 
 Where the _source folder_ `./src/data/` is a git versionned directory.
 
-The plugin will add several fields to `File` nodes: `gitLogLatestAuthorName`, `gitLogLatestAuthorEmail`, and `gitLogLatestDate`. These fields are related to the latest commit touching that file.
+The plugin will add several fields to `File` nodes:
+`gitLogLatestAuthorName`, `gitLogLatestAuthorEmail`, and `gitLogLatestDate`.
+These fields are related to the latest commit touching that file.
 
 If the file is not versionned, these fields will be `null`.
 
@@ -44,12 +51,6 @@ query {
           gitLogLatestAuthorName
           gitLogLatestAuthorEmail
           gitLogLatestDate
-        }
-        internal {
-          type
-          mediaType
-          description
-          owner
         }
       }
     }
@@ -69,14 +70,7 @@ Now you have a `File` node to work with:
             "fields": {
               "gitLogLatestAuthorName":"John Doe",
               "gitLogLatestAuthorEmail": "john.doe@github.com",
-              "gitLogLatestDate": "2019-10-14T12:58:39.000Z"
-            },
-            "internal": {
-              "contentDigest": "c1644b03f380bc5508456ce91faf0c08",
-              "type": "File",
-              "mediaType": "text/yaml",
-              "description": "File \"src/data/example.yml\"",
-              "owner": "gatsby-source-filesystem"
+              "gitLogLatestDate": "2020-10-14T12:58:39.000Z"
             }
           }
         }
@@ -127,7 +121,11 @@ module.exports = {
 
 **`dir`** [string][optional]
 
-The root of the git repository. Will use the current directory if not provided.
+The root of the git repository.
+Will use the current directory if not provided.
+
+Note that including this option will override resolution of symlinks.
+All files will be checked against the given git repository.
 
 ## Example
 
